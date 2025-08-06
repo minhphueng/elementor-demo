@@ -103,7 +103,7 @@ final class Product_Gallery_Widget {
      * Register scripts for the widget.
      */
     public function register_scripts() {
-        wp_enqueue_script( 'product-gallery', plugins_url( '/assets/js/product-gallery.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+        wp_enqueue_script( 'product-gallery', plugins_url( '/assets/js/product-gallery.js', __FILE__ ), array( 'jquery' ), filemtime( plugin_dir_path( __FILE__ ) . '/assets/js/product-gallery.js' ), true );
         wp_localize_script( 'product-gallery', 'productGalleryAjax', array(
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
             'nonce'   => wp_create_nonce( 'product_gallery_nonce' ),
@@ -115,7 +115,7 @@ final class Product_Gallery_Widget {
      */
     public function register_styles() {
         wp_enqueue_style( 'bootstrap', plugins_url( '/assets/css/bootstrap.min.css', __FILE__ ), array(), '5.3.7' );
-        wp_enqueue_style( 'product-gallery', plugins_url( '/assets/css/product-gallery.css', __FILE__ ), array( 'bootstrap' ), '1.0' );
+        wp_enqueue_style( 'product-gallery', plugins_url( '/assets/css/product-gallery.css', __FILE__ ), array( 'bootstrap' ), filemtime( plugin_dir_path( __FILE__ ) . '/assets/css/product-gallery.css' ) );
     }
 
     /**
@@ -131,31 +131,29 @@ final class Product_Gallery_Widget {
         $sort_by  = isset( $_POST['sort_by'] ) ? sanitize_text_field( $_POST['sort_by'] ) : 'price';
         $category = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : '';
 
-        $transient_key = 'product_gallery_products_' . $limit;
+        // Build transient key based on category and limit
+        $transient_key = $category ? 'product_gallery_products_' . $category . '_' . $limit : 'product_gallery_products_all_' . $limit;
         $products      = get_transient( $transient_key );
 
         if ( false === $products ) {
-            $response = wp_remote_get( 'https://dummyjson.com/products?limit=' . $limit );
+            if ( $category ) {
+                // Fetch products by category with limit
+                $api_url = 'https://dummyjson.com/products/category/' . urlencode( $category ) . '?limit=' . $limit;
+            } else {
+                // Fetch all products with limit
+                $api_url = 'https://dummyjson.com/products?limit=' . $limit;
+            }
+            $response = wp_remote_get( $api_url );
             if ( is_wp_error( $response ) ) {
                 wp_send_json_error();
             }
-            $body     = wp_remote_retrieve_body( $response );
-            $data     = json_decode( $body, true );
+            $body = wp_remote_retrieve_body( $response );
+            $data = json_decode( $body, true );
             $products = $data['products'] ?? array();
             set_transient( $transient_key, $products, 10 * MINUTE_IN_SECONDS );
         }
 
-        // Filter by category.
-        if ( $category ) {
-            $products = array_filter(
-                $products,
-                function ( $product ) use ( $category ) {
-                    return strtolower( $product['category'] ) === strtolower( $category );
-                }
-            );
-        }
-
-        // Sort.
+        // Sort products
         usort(
             $products,
             function ( $a, $b ) use ( $sort_by ) {

@@ -110,32 +110,30 @@ class Product_Gallery extends Widget_Base {
      * @return void
      */
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $products = $this->fetch_products( $settings['products_per_page'] );
-        $sort_by  = $settings['sort_by'] ?? 'price';
-        $category = $settings['category'] ?? '';
+        $settings   = $this->get_settings_for_display();
+        $categories = $this->fetch_collections();
+        $products   = $this->fetch_products( $settings['products_per_page'] );
+        $sort_by    = $settings['sort_by'] ?? 'price';
+        $category   = $settings['category'] ?? '';
 
-        echo '<div class="product-filters">';
-        echo '<select id="product-sort" class="form-select">';
+        echo '<div class="product-gallery-container" data-per-page="' . esc_attr( $settings['products_per_page'] ) . '">';
+        echo '<div class="product-filters d-flex justify-content-center justify-content-md-start align-items-center">';
+        echo '<select id="product-sort" class="form-select" aria-label="Sort product">';
         echo '<option value="price"' . selected( $sort_by, 'price', false ) . '>Sort by Price</option>';
         echo '<option value="title"' . selected( $sort_by, 'title', false ) . '>Sort by Title</option>';
         echo '</select>';
 
-        echo '<select id="product-category" class="form-select">';
+        echo '<select id="product-category" class="form-select" aria-label="Select Category">';
         echo '<option value="">All Categories</option>';
-        $cat_transient_key = 'product_gallery_categories_' . $settings['products_per_page'];
-        $categories        = get_transient( $cat_transient_key );
-        if ( false === $categories ) {
-            $categories = array_unique( array_column( $products, 'category' ) );
-            set_transient( $cat_transient_key, $categories, 10 * MINUTE_IN_SECONDS );
-        }
         foreach ( $categories as $cat ) {
-            echo '<option value="' . esc_attr( $cat ) . '"' . selected( $category, $cat, false ) . '>' . esc_html( ucfirst( $cat ) ) . '</option>';
+            echo '<option value="' . esc_attr( $cat[ 'slug' ] ) . '"' . selected( $category, $cat[ 'slug' ], false ) . '>' . esc_html( ucfirst( $cat[ 'name' ] ) ) . '</option>';
         }
         echo '</select>';
+        echo '<span id="ajax-loader"></span>';
+        echo '<div class="counter ms-auto d-none d-md-flex text-muted">Total <span id="number" class="mx-1">' . count( $products ) . '</span> item(s)</div>';
         echo '</div>';
 
-        echo '<div class="container-fluid product-gallery-container" data-per-page="' . esc_attr( $settings['products_per_page'] ) . '">';
+        echo '<div id="product-overlay"></div>';
         echo '<div class="row" id="product-gallery-list">';
         foreach ( $products as $product ) {
             require plugin_dir_path( __FILE__ ) . 'product-item.php';
@@ -166,5 +164,32 @@ class Product_Gallery extends Widget_Base {
         }
 
         return $products;
+    }
+
+    /**
+     * Fetch collections from the API and cache them.
+     *
+     * @return array $categories List of collections.
+     */
+    private function fetch_collections() {
+        $cat_transient_key = 'product_gallery_all_categories';
+        $categories        = get_transient( $cat_transient_key );
+
+        if ( false === $categories ) {
+            $response = wp_remote_get( 'https://dummyjson.com/products/categories' );
+            if ( ! is_wp_error( $response ) ) {
+                $body = wp_remote_retrieve_body( $response );
+                $categories = json_decode( $body, true );
+                if ( is_array( $categories ) ) {
+                    set_transient( $cat_transient_key, $categories, 10 * MINUTE_IN_SECONDS );
+                } else {
+                    $categories = array();
+                }
+            } else {
+                $categories = array();
+            }
+        }
+
+        return $categories;
     }
 }

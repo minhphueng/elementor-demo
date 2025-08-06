@@ -279,8 +279,8 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
  * Enqueue addtional assets
  */
 function enqueue_custom_scripts_styles() {
-	wp_enqueue_style( 'custom-style', HELLO_THEME_STYLE_URL . 'custom-style.css', array(), '1.0' );
-	wp_enqueue_script( 'custom-script', HELLO_THEME_SCRIPTS_URL . 'custom-script.js', array( 'jquery' ), '1.0', true );
+	wp_enqueue_style( 'custom-style', HELLO_THEME_STYLE_URL . 'custom-style.css', array(), filemtime( HELLO_THEME_STYLE_PATH . 'custom-style.css' ) );
+	wp_enqueue_script( 'custom-script', HELLO_THEME_SCRIPTS_URL . 'custom-script.js', array( 'jquery' ), filemtime( HELLO_THEME_SCRIPTS_PATH . 'custom-script.js' ), true );
 
 	if ( is_single() ) {
 		wp_enqueue_style( 'slick', 'https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css', array(), '1.8.1' );
@@ -296,7 +296,7 @@ add_action( 'wp_enqueue_scripts', 'enqueue_custom_scripts_styles' );
 function custom_single_template() {
 	global $wp_query;
 
-	if ( DUMMY_PRODUCT ) {
+	if ( defined( 'DUMMY_PRODUCT' ) && ! empty( DUMMY_PRODUCT ) ) {
     $template = HELLO_THEME_PATH . '/single-product.php';
     if ( file_exists( $template ) ) { // Check if the template file exists.
       $wp_query->is_single = true;
@@ -407,7 +407,7 @@ function generate_dummy_product_url( $category, $product_name ) {
  * @return string
  */
 function custom_dummy_product_meta_title( $title ) {
-	if ( defined( 'DUMMY_PRODUCT' ) && DUMMY_PRODUCT ) {
+	if ( defined( 'DUMMY_PRODUCT' ) && ! empty( DUMMY_PRODUCT ) ) {
 		$product = get_dummy_product( $_GET['dummy_id'] );
 		if ( $product && ! empty( $product['title'] ) && ! empty( $product['category'] ) ) {
 				return esc_html( ucfirst( $product['category'] ) ) . ' - ' . esc_html( $product['title'] ) . ' | ' . get_bloginfo( 'name' );
@@ -416,6 +416,19 @@ function custom_dummy_product_meta_title( $title ) {
 	return $title;
 }
 add_filter( 'pre_get_document_title', 'custom_dummy_product_meta_title' );
+add_filter( 'rank_math/frontend/title', 'custom_dummy_product_meta_title', 999 );
+
+/**
+ * Override meta robots for dummy product single template.
+ *
+ * @return array
+ */
+add_filter( 'rank_math/frontend/robots', function( $robots ) {
+	return [
+		'index'  => 'index',
+		'follow' => 'follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large',
+	];
+} );
 
 /* =========================
  * END OF CUSTOMIZATION

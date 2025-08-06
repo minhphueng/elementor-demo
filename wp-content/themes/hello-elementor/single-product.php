@@ -42,7 +42,7 @@
 </style>
 
 <main id="content" <?php post_class( 'site-main' ); ?> role="main" itemscope itemtype="https://schema.org/Product">
-  <?php if ( DUMMY_PRODUCT ) : ?>
+  <?php if ( defined( 'DUMMY_PRODUCT' ) && ! empty( DUMMY_PRODUCT ) ) : ?>
   <div class="container mb-5">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb list-unstyled d-flex flex-wrap mb-4">
@@ -58,6 +58,9 @@
               <img src="<?php echo esc_url( DUMMY_PRODUCT[ 'thumbnail' ] ); ?>"
                    alt="<?php echo esc_attr( DUMMY_PRODUCT[ 'title' ] ); ?>"
                    class="img-fluid product-image d-block mx-auto"
+                   width="300"
+                   height="300"
+                   fetch-priority="high"
                    itemprop="url">
             </figure>
             <ul class="product-thumbnails list-unstyled d-flex flex-wrap mb-0" aria-label="Product thumbnails">
@@ -68,6 +71,7 @@
                      alt="product thumbnail"
                      width="80"
                      height="80"
+                     fetchpriority="high"
                      loading="lazy">
               </li>
               <?php endfor; ?>
@@ -79,7 +83,7 @@
             <h1 class="mb-3" itemprop="name"><?php echo esc_html( DUMMY_PRODUCT[ 'title' ] ); ?></h1>
             <p itemprop="description"><?php echo esc_html( DUMMY_PRODUCT['description'] ); ?></p>
 
-            <div class="d-flex align-items-center" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+            <div class="d-flex align-items-center mb-3" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
               <meta itemprop="priceCurrency" content="USD" />
               <h2 class="me-3 mb-0" itemprop="price">$<?php echo number_format( DUMMY_PRODUCT[ 'price' ], 2 ); ?></h2>
               <?php if ( DUMMY_PRODUCT[ 'discountPercentage' ] > 0 ) : ?>
@@ -89,7 +93,7 @@
               <?php endif; ?>
               <link itemprop="availability" href="https://schema.org/<?php echo ( DUMMY_PRODUCT['stock'] > 0 ) ? 'InStock' : 'OutOfStock'; ?>" />
             </div>
-            <div class="badge mb-3">
+            <div class="mb-3">
               <strong>Stock:</strong>
               <span itemprop="inventoryLevel"><?php echo esc_html ( DUMMY_PRODUCT['stock'] ); ?></span>
             </div>
@@ -109,15 +113,16 @@
     <h3 class="mb-5 text-center">Related Products</h3>
     <div class="row slider">
       <?php foreach ( $related_products as $related_product ) : ?>
-      <div class="item-wrapper col-sm-4 mb-4">
+      <div class="item-wrapper col-sm-6 col-xl-4 mb-4">
         <article class="product-item rounded-3" itemscope itemtype="https://schema.org/Product">
           <figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
             <img src="<?php echo esc_url( $related_product['thumbnail'] ); ?>"
               alt="<?php echo esc_attr( $related_product['title'] ); ?>"
               itemprop="url"
               width="300"
-              height="200"
-              loading="lazy">
+              height="300"
+              loading="lazy"
+              fetchpriority="high">
           </figure>
           <h3 class="product-title mb-2" itemprop="name"><?php echo esc_html( $related_product['title'] ); ?></h3>
           <div class="category" itemprop="category"><?php echo esc_html( $related_product['category'] ); ?></div>
