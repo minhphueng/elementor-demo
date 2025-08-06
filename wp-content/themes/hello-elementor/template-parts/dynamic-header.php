@@ -74,7 +74,7 @@ $header_mobile_nav_menu = wp_nav_menu( $menu_args ); // The same menu but separa
 </header>
 
 <!-- Preloader -->
-<div id="page-loading-blocs-notifaction" class="page-preloader d-flex">
+<div id="page-preloader" class="d-flex">
 	<div class="spinner align-self-center">
 		<div class="spinner-dot"></div>
 		<div class="spinner-dot"></div>

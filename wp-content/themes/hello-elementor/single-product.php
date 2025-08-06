@@ -34,6 +34,11 @@
     border-radius: 25px;
     font-weight: 500;
   }
+
+  .btn-main:hover {
+    background-color: #c36;
+    color: #fff;
+  }
 </style>
 
 <main id="content" <?php post_class( 'site-main' ); ?> role="main" itemscope itemtype="https://schema.org/Product">

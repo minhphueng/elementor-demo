@@ -10,8 +10,12 @@ body.loading {
   overflow-y: hidden;
 }
 
+.btn:hover {
+  border-color: #c36;
+}
+
 /* Preloader */
-.page-preloader {
+#page-preloader {
   position: fixed;
   top: 0;
   right: unset;
