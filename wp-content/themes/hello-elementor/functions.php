@@ -23,6 +23,8 @@ define( 'HELLO_THEME_STYLE_URL', HELLO_THEME_ASSETS_URL . 'css/' );
 define( 'HELLO_THEME_IMAGES_PATH', HELLO_THEME_ASSETS_PATH . 'images/' );
 define( 'HELLO_THEME_IMAGES_URL', HELLO_THEME_ASSETS_URL . 'images/' );
 
+define( 'DUMMY_PRODUCT', isset( $_GET['dummy_id'] ) ? get_dummy_product( $_GET['dummy_id'] ) : false );
+
 if ( ! isset( $content_width ) ) {
 	$content_width = 800; // Pixels.
 }
@@ -267,6 +269,158 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 		wp_body_open();
 	}
 }
+
+/* =========================
+ * BEGIN OF CUSTOMIZATION
+ * =========================
+ */
+
+/**
+ * Enqueue addtional assets
+ */
+function enqueue_custom_scripts_styles() {
+	wp_enqueue_style( 'custom-style', HELLO_THEME_STYLE_URL . 'custom-style.css', array(), '1.0' );
+	wp_enqueue_script( 'custom-script', HELLO_THEME_SCRIPTS_URL . 'custom-script.js', array( 'jquery' ), '1.0', true );
+
+	if ( is_single() ) {
+		wp_enqueue_style( 'slick', 'https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css', array(), '1.8.1' );
+		wp_enqueue_style( 'slick-theme', 'https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css', array(), '1.8.1' );
+		wp_enqueue_script( 'slick', 'https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js', array( 'jquery' ), '1.8.1', true );
+	}
+}
+add_action( 'wp_enqueue_scripts', 'enqueue_custom_scripts_styles' );
+
+/**
+ * Custom redirect action for DummyJSON API
+ */
+function custom_single_template() {
+	global $wp_query;
+
+	if ( DUMMY_PRODUCT ) {
+    $template = HELLO_THEME_PATH . '/single-product.php';
+    if ( file_exists( $template ) ) { // Check if the template file exists.
+      $wp_query->is_single = true;
+      status_header( 200 );
+      require_once $template ;
+      exit;
+    }
+		else { // Fallback to 404 if template not found.
+      include get_query_template( '404' );
+      exit;
+    }
+  }
+}
+add_action( 'template_redirect', 'custom_single_template' );
+
+/**
+ * Helper function to get product information and store in cache
+ *
+ * @return array
+*/
+function get_dummy_product( $product_id ) {
+	$product_id    = absint( $product_id );
+	$transient_key = 'dummy_product_' . $product_id;
+	$product       = get_transient( $transient_key );
+
+	if ( false === $product ) {
+		$api_url = 'https://dummyjson.com/products/' . $product_id;
+		$args    = array(
+				'timeout' => 10,
+		);
+
+		$response = wp_remote_get( $api_url, $args );
+
+		if ( is_wp_error( $response ) ) {
+			error_log( 'DummyJSON API Error: ' . $response->get_error_message() );
+			return false;
+		}
+
+		$body    = wp_remote_retrieve_body( $response );
+		$product = json_decode( $body, true );
+
+		if ( empty( $product ) || ! is_array( $product ) || isset( $product['error'] ) || isset( $product['message'] ) ) {
+			error_log( 'DummyJSON API Invalid Response: ' . $body );
+			return false;
+		}
+
+		set_transient( $transient_key, $product, 10 * MINUTE_IN_SECONDS ); // Cache for 10 minutes.
+	}
+
+	return $product;
+}
+
+/**
+ * Helper function to fetch related products (same category, excluding current product)
+ *
+ * @return array
+ */
+function get_related_products( $category, $exclude_id, $limit = 3 ) {
+	$category      = sanitize_title( $category );
+	$exclude_id    = absint( $exclude_id );
+	$transient_key = 'dummy_related_products_' . $exclude_id;
+
+	$products = get_transient( $transient_key );
+
+	if ( false === $products ) {
+		$response = wp_remote_get( 'https://dummyjson.com/products/category/' . urlencode( $category ) );
+
+		if ( is_wp_error( $response ) ) {
+			return [];
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+
+		if ( empty( $data['products'] ) ) {
+			return [];
+		}
+
+		$products = $data['products'];
+		set_transient( $transient_key, $products, 10 * MINUTE_IN_SECONDS ); // Cache for 10 minutes.
+	}
+
+	// Filter out current product and randomize results.
+	$filtered = array_filter( $products, function( $product ) use ( $exclude_id ) {
+		return $product['id'] != $exclude_id;
+	} );
+
+	shuffle( $filtered );
+	return array_slice( $filtered, 0, $limit );
+}
+
+/**
+ * Helper function to generate SEO friend URL for dummy product
+ *
+ * @return string
+*/
+function generate_dummy_product_url( $category, $product_name ) {
+	if ( ! $category || ! $product_name ) {
+		wp_die( 'Category or product name is null' );
+	}
+
+	return sanitize_title( $category ) . '/' . sanitize_title( $product_name );
+}
+
+/**
+ * Change meta title for dummy product single template.
+ *
+ * @return string
+ */
+function custom_dummy_product_meta_title( $title ) {
+	if ( defined( 'DUMMY_PRODUCT' ) && DUMMY_PRODUCT ) {
+		$product = get_dummy_product( $_GET['dummy_id'] );
+		if ( $product && ! empty( $product['title'] ) && ! empty( $product['category'] ) ) {
+				return esc_html( ucfirst( $product['category'] ) ) . ' - ' . esc_html( $product['title'] ) . ' | ' . get_bloginfo( 'name' );
+		}
+	}
+	return $title;
+}
+add_filter( 'pre_get_document_title', 'custom_dummy_product_meta_title' );
+
+/* =========================
+ * END OF CUSTOMIZATION
+ * =========================
+ */
 
 require HELLO_THEME_PATH . '/theme.php';
 

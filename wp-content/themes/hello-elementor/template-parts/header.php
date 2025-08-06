@@ -26,11 +26,11 @@ $header_nav_menu = wp_nav_menu( [
 			the_custom_logo();
 		} elseif ( $site_name ) {
 			?>
-			<div class="site-title">
+			<!-- <div class="site-title">
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr__( 'Home', 'hello-elementor' ); ?>" rel="home">
 					<?php echo esc_html( $site_name ); ?>
 				</a>
-			</div>
+			</div> -->
 			<?php if ( $tagline ) : ?>
 			<p class="site-description">
 				<?php echo esc_html( $tagline ); ?>
@@ -48,3 +48,22 @@ $header_nav_menu = wp_nav_menu( [
 		</nav>
 	<?php endif; ?>
 </header>
+
+<!-- Preloader -->
+<div id="page-loading-blocs-notifaction" class="page-preloader d-flex">
+	<div class="spinner align-self-center">
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+	</div>
+</div>
+<!-- Preloader END -->

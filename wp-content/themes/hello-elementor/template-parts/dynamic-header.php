@@ -35,11 +35,11 @@ $header_mobile_nav_menu = wp_nav_menu( $menu_args ); // The same menu but separa
 			<?php endif;
 
 			if ( $site_name && ( 'logo' !== hello_elementor_get_setting( 'hello_header_logo_type' ) || $is_editor ) ) : ?>
-				<div class="site-title <?php echo esc_attr( hello_show_or_hide( 'hello_header_logo_display' ) ); ?>">
+				<!-- <div class="site-title <?php echo esc_attr( hello_show_or_hide( 'hello_header_logo_display' ) ); ?>">
 					<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr__( 'Home', 'hello-elementor' ); ?>" rel="home">
 						<?php echo esc_html( $site_name ); ?>
 					</a>
-				</div>
+			 	</div> -->
 			<?php endif;
 
 			if ( $tagline && ( hello_elementor_get_setting( 'hello_header_tagline_display' ) || $is_editor ) ) : ?>
@@ -72,3 +72,22 @@ $header_mobile_nav_menu = wp_nav_menu( $menu_args ); // The same menu but separa
 		<?php endif; ?>
 	</div>
 </header>
+
+<!-- Preloader -->
+<div id="page-loading-blocs-notifaction" class="page-preloader d-flex">
+	<div class="spinner align-self-center">
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+		<div class="spinner-dot"></div>
+	</div>
+</div>
+<!-- Preloader END -->
