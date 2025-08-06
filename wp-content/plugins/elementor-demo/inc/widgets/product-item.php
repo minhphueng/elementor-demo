@@ -6,10 +6,10 @@
  */
 
 // Use schema.org/Product for each product item
-echo '<div class="col-sm-4 mb-4 item-wrapper">';
-echo '<article class="product-item bg-light rounded-3" itemscope itemtype="https://schema.org/Product">';
+echo '<div class="col-sm-6 col-xl-4 mb-4 item-wrapper">';
+echo '<article class="product-item rounded-3" itemscope itemtype="https://schema.org/Product">';
 echo '<figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">';
-echo '<img src="' . esc_url( $product[ 'thumbnail' ] ) . '" alt="' . esc_attr( $product[ 'title' ] ) . '" itemprop="url" width="300" height="200" loading="lazy">';
+echo '<img src="' . esc_url( $product[ 'thumbnail' ] ) . '" alt="' . esc_attr( $product[ 'title' ] ) . '" itemprop="url" width="300" height="200" loading="lazy" fetchpriority="high">';
 echo '</figure>';
 echo '<h3 class="product-title mb-2" itemprop="name">' . esc_html( $product[ 'title' ] ) . '</h3>';
 echo '<div class="category" itemprop="category">' . esc_html( $product[ 'category' ] ) . '</div>';

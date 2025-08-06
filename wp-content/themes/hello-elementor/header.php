@@ -20,6 +20,9 @@ $skip_link_url = apply_filters( 'hello_elementor_skip_link_url', '#content' );
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="<?php echo esc_attr( $viewport_content ); ?>">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<?php if ( defined( 'DUMMY_PRODUCT' ) && ! empty( DUMMY_PRODUCT ) ) : ?>
+	<meta name="description" content="<?php echo esc_html( DUMMY_PRODUCT['description'] ); ?>">
+	<?php endif; ?>
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class('loading'); ?>>

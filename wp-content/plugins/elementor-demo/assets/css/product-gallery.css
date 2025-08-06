@@ -4,6 +4,51 @@
  * @package Product Gallery Widget addons for Elementor
  */
 
+#ajax-loader {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 5px solid;
+    border-color: #f8f9fa;
+    border-right-color: #000;
+    margin-left: 15px;
+    animation: turn 0.7s infinite linear;
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+#product-overlay {
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    position: absolute;
+    background-color: #fff;
+    opacity: .5;
+}
+
+#ajax-loader,
+#product-overlay {
+    visibility: hidden;
+}
+
+.product-gallery-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-gallery-container.freeze .product-item {
+    filter: blur(10px);
+}
+
+.product-gallery-container.freeze #ajax-loader,
+.product-gallery-container.freeze #product-overlay {
+    visibility: visible;
+}
+
 .product-filters {
     margin-bottom: 30px;
 }
@@ -11,7 +56,10 @@
 .form-select {
     width: auto;
     display: inline-block;
-    margin-right: 10px;
+}
+
+.form-select + .form-select {
+    margin-left: 10px;
 }
 
 .product-item {
@@ -20,6 +68,10 @@
     text-align: center;
     margin-bottom: 20px;
     height: 100%;
+}
+
+.product-item:hover {
+    background-color: rgb(248, 249, 250);
 }
 
 .product-item img {
@@ -38,7 +90,7 @@
 }
 
 .product-item .product-title {
-    min-height: 68px;
+    min-height: 70px;
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
@@ -54,4 +106,9 @@
     text-decoration: none;
     border-radius: 25px;
     font-weight: 500;
+}
+
+.btn-main:hover {
+    background-color: #c36;
+    color: #fff;
 }

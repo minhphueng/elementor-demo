@@ -22,6 +22,8 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
 ?>
 
 <?php wp_footer(); ?>
-
+<a href="#site-header" aria-label="Scroll to top button" id="scroll-to-top">
+	<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32"><path d="M30,22.656l-14-13-14,13"/></svg>
+</a>
 </body>
 </html>

@@ -18,7 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<div class="page-content">
-		<p><?php echo esc_html__( 'It looks like nothing was found at this location.', 'hello-elementor' ); ?></p>
+		<h1 class="mt-5 mb-3">404</h1>
+  	<h3 class="mb-5">
+			<?php echo esc_html__( 'It looks like nothing was found at this location.', 'hello-elementor' ); ?> <br>
+			<a href="/">Back to the Gallery</a>
+		</h3>
 	</div>
 
 </main>

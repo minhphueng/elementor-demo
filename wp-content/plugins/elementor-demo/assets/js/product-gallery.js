@@ -10,6 +10,8 @@ jQuery(document).ready(function($) {
         var category = $('#product-category').val();
         var perPage  = $('.product-gallery-container').data('per-page');
 
+        $('.product-gallery-container').toggleClass('freeze');
+
         $.ajax({
             url: productGalleryAjax.ajaxurl,
             type: 'POST',
@@ -22,8 +24,15 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
+                    $('.product-gallery-container').toggleClass('freeze');
                     $('#product-gallery-list').html(response.data.html);
+                    $('#number').html($('.product-item').length);
                 }
+            },
+            error: function(xhr, status, error) {
+                $('.product-gallery-container').toggleClass('freeze');
+                $('#number').html('n/a');
+                alert('AJAX error: ' + error);
             }
         });
     });
